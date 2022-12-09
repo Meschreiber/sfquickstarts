@@ -89,12 +89,8 @@ from table(generator(rowcount=>50000));
 -- verify the data
 select * from sales;
 
--- first create a schema to hold the customer sales
-CREATE SCHEMA PC_HIGHTOUCH_DB.CUSTOMER_SALES;
-USE PC_HIGHTOUCH_DB.CUSTOMER_SALES;
-
 -- create a view for easy lookup
-create or replace view customer_sales
+create or replace view customer_sales as
 select c.email, max(s.sale_timestamp) as latest_sale, sum(cost_cents)/100 as ltv_dollars
 from customers c
  inner join sales s on s.user_id=c.user_id
