@@ -12,20 +12,22 @@ tags: Getting Started, AdTech
 ## Overview 
 Duration: 1
 
-Hightouch helps marketers activate their data, sitting in Snowflake, in over 100 different destinations.  It provides the "last mile" of the [Modern Data Stack](https://hightouch.com/blog/reverse-etl-bringing-the-modern-data-stack-full-circle).
+Hightouch helps marketers activate their customer data from Snowflake to over 125 different applications.  The Data Activation platform, powered by Reverse ETL, provides the "last mile" of the [Modern Data Stack](https://hightouch.com/blog/reverse-etl-bringing-the-modern-data-stack-full-circle).
 
 ![Snowflake and Hightouch stack](assets/Snowflake_Template_The_Modern_Data_Stack_e80de39d33.jpg)
 
-Sometimes a brand wants to suppress some or all existing customers from an ad campaign. This could be because the campaign is a propsecting campaign, and does not have messaging that makes sense for existing customers. It could also be because the brand offers something like a subscription, which can only be purchased once.  Or, it could be a product with a slow replenishment cycle, where recent purchasers are very unlikely to purchase again so soon.  This is the scenario we will explore with this Quickstart, where recent purchasers are added as an excluded audience segment in a Youtube campaign through Google Ads.
+The use of suppression audiences has become increasingly important in modern marketing due to the rising cost of advertising and the increasing expectations of consumers. A suppression audience is a group of customers who are excluded from a marketing campaign to ensure that they do not see irrelevant ads. Suppression audiences can be created using various segments, such as current customers, churned customers, or those with low purchasing propensity. The idea behind suppression audiences is simple: you define who you do not want to target with your ads. By excluding certain groups from your campaign, you can focus on delivering relevant marketing to your desired audience.
+
+In this Quickstart, we will cover a suppression audience use-case where recent purchasers are added as an excluded (suppression) audience segment in a Youtube campaign run through Google Ads. Leveraging existing customer data in Snowflake, we will build the purchaser audience with Hightouch's no-code audience builder and sync the users to Google Ads. 
 
 ### Prerequisites
 - Basic experience with Snowflake and SQL
-- Access to Hightouch with the "audiences" feature enabled. Reach out for a [demo](https://hightouch.com/demo) if needed.
+- Access to [Hightouch](https://hightouch.com/get-started) with the "audiences" feature enabled. Reach out for a [demo](https://hightouch.com/demo) if needed.
 
 ### What You’ll Learn 
-- how to create test data in Snowflake
-- how to connect Hightouch to Snowflake
-- how to create an audience in Google Ads for Youtube from this data
+- How to create test data in Snowflake
+- How to connect Hightouch to Snowflake
+- How to create an audience in Google Ads for Youtube from this data
 
 ### What You’ll Build 
 - An audience for suppression within Google Ads
