@@ -12,15 +12,16 @@ tags: Getting Started, AdTech
 ## Overview 
 Duration: 1
 
-Hightouch helps marketers activate their customer data from Snowflake to over 125 different applications.  The Data Activation platform, powered by Reverse ETL, provides the "last mile" of the [Modern Data Stack](https://hightouch.com/blog/reverse-etl-bringing-the-modern-data-stack-full-circle).
+Hightouch helps marketers activate their customer data from Snowflake to over 125 different applications.  The Data Activation platform, powered by Reverse ETL, provides both SQL and audience builders to help teams across an organization complete what is now being called the "last mile" of the [Modern Data Stack](https://hightouch.com/blog/reverse-etl-bringing-the-modern-data-stack-full-circle).
 
 ![Snowflake and Hightouch stack](assets/Snowflake_Template_The_Modern_Data_Stack_e80de39d33.jpg)
 
-The use of suppression audiences has become increasingly important in modern marketing due to the rising cost of advertising and the increasing expectations of consumers. A suppression audience is a group of customers who are excluded from a marketing campaign to ensure that they do not see irrelevant ads. Suppression audiences can be created using various segments, such as current customers, churned customers, or those with low purchasing propensity. The idea behind suppression audiences is simple: you define who you do not want to target with your ads. By excluding certain groups from your campaign, you can focus on delivering relevant marketing to your desired audience.
+Audience targeting strategies have become increasingly important in modern marketing due to the rising cost of advertising and the increasing expectations of consumers. While there are many ways in which organizations can target customers, one of the simplest strategies to begin leveraging to optimize advertising spend is suppression audiences.
 
-There are several reasons a company might want to suppress or exclude existing purchasers from their ad campaign.  Firstly, it may be a product, like a subscription, that can only be purchased once.  Another reason is that it may simply be a way to use different messaging for different audiences.  Existing customers may be excluded in one campaign and exclusively targeted in another.  Finally, it may be a product with a long replenishment cycle, so that purchasers are excluded from messaging for a certain amount of time after their purchase.
+A suppression audience is a group of customers who are excluded from a marketing campaign to ensure that they do not see irrelevant ads. Suppression audiences can be created using various segments, such as current customers, churned customers, or those with low purchasing propensity. The idea behind suppression audiences is simple: you define who you do not want to target with your ads. By excluding certain groups from your campaign, you can focus on delivering relevant marketing to your desired audience.
+There are several reasons a company might want to suppress or exclude existing purchasers from their ad campaign. Firstly, it may be a product, like a subscription, that can only be purchased once. Another reason is that it may simply be a way to use different messaging for different audiences. Existing customers may be excluded in one campaign and exclusively targeted in another. Finally, it may be a product with a long replenishment cycle, so that purchasers are excluded from messaging for a certain amount of time after their purchase.
 
-In this Quickstart, we will cover this last example, a suppression audience use-case where recent purchasers are added as an excluded (suppression) audience segment in a Youtube campaign run through Google Ads. Leveraging existing customer data in Snowflake, we will build the purchaser audience with Hightouch's no-code audience builder and sync the users to Google Ads. 
+In this Quickstart, we will cover this last example, a suppression audience use-case where recent purchasers are added as an excluded (suppression) audience segment in a Youtube campaign run through Google Ads. Leveraging existing customer data in Snowflake, we will build a purchaser audience with Hightouch's no-code audience builder and sync the audience of users to Google Ads.
 
 ### Prerequisites
 - Basic experience with Snowflake and SQL
@@ -29,13 +30,14 @@ In this Quickstart, we will cover this last example, a suppression audience use-
 ### What You’ll Learn 
 - How to create test data in Snowflake
 - How to connect Hightouch to Snowflake
-- How to create an audience in Google Ads for Youtube from this data
+- How to create an audience in Hightouch and Sync it to Google Ads
+- How to suppress audiences in Google Ads for Youtube campaigns
 
 ### What You’ll Build 
 - An audience for suppression within Google Ads
 
 <!-- ------------------------ -->
-## Prepare your audience within Snowflake
+## Prepare your audience within Snowflake & connect Hightouch
 Duration: 4
 
 First, you need to have the data that you want to push prepared within Snowflake.
@@ -75,7 +77,18 @@ Next, we create the customers and sales data, and a view to unify them to make t
 -- create customer list
 CREATE OR REPLACE TABLE customers AS
 SELECT sha1(seq4()) as user_id,
-  'user'||seq4()||'_'||uniform(1, 3, random(2))||'@email.com' as email
+  'user'||seq4()||'_'||uniform(1, 3, random(1))||'@email.com' as email,
+    case when uniform(1,6,random(2))=1 then 'Less than $20,000'
+       when uniform(1,6,random(2))=2 then '$20,000 to $34,999'
+       when uniform(1,6,random(2))=3 then '$35,000 to $49,999'
+       when uniform(1,6,random(2))=3 then '$50,000 to $74,999'
+       when uniform(1,6,random(2))=3 then '$75,000 to $99,999'
+  else 'Over $100,000' end as household_income,
+  round(18+uniform(0,10,random(3))+uniform(0,50,random(4)),-1)+5*uniform(0,1,random(5)) as age_band,
+    case when uniform(1,10,random(6))<4 then 'Single'
+       when uniform(1,10,random(6))<8 then 'Married'
+       when uniform(1,10,random(6))<10 then 'Divorced'
+  else 'Widowed' end as marital_status
   FROM table(generator(rowcount => 100000));
 
 -- verify the data
@@ -92,11 +105,12 @@ from table(generator(rowcount=>50000));
 select * from sales;
 
 -- create a view for easy lookup
-create or replace view customer_sales as
-select c.email, max(s.sale_timestamp) as latest_sale, sum(cost_cents)/100 as ltv_dollars
-from customers c
- inner join sales s on s.user_id=c.user_id
-group by 1;
+create or replace view PC_HIGHTOUCH_DB.public.customer_sales as
+select c.user_id, c.email, c.household_income, c.age_band, c.marital_status,
+ max(s.sale_timestamp) as latest_sale, sum(cost_cents)/100 as ltv_dollars
+from HIGHTOUCH_QUICKSTART.DEMO.customers c
+ inner join HIGHTOUCH_QUICKSTART.DEMO.sales s on s.user_id=c.user_id
+group by c.user_id, c.email, c.household_income, c.age_band, c.marital_status;
 
 -- verify the data
 select * from customer_sales;
@@ -105,9 +119,7 @@ select * from customer_sales;
 Now we need to grant access to the view to Hightouch.
 
 ```sql
-GRANT USAGE ON DATABASE HIGHTOUCH_QUICKSTART TO ROLE PC_HIGHTOUCH_ROLE;
-GRANT USAGE ON SCHEMA HIGHTOUCH_QUICKSTART.DEMO TO ROLE PC_HIGHTOUCH_ROLE;
-GRANT SELECT ON VIEW HIGHTOUCH_QUICKSTART.DEMO.customer_sales TO ROLE PC_HIGHTOUCH_ROLE;
+GRANT SELECT ON VIEW PC_HIGHTOUCH_DB.public.customer_sales TO ROLE PC_HIGHTOUCH_ROLE;
 ```
 
 ## Create audience and configure destination in Hightouch
@@ -119,34 +131,73 @@ Now that we have our test data, we need to create the audience in Hightouch and 
 
 In order to push data to Google Ads for use with a Youtube campaign, we need to create a destination.
 
-1. Navigate to destinations and click **Add Destination**. Select Google Ads and click **Continue**. (Screenshot)
-2. Connect to Google Ads. This will open up a new window to input your credentials. Once done, click **Continue**. (Screenshot)
-3. Name the destination and click **Finish**. (Screenshot)
+1. Navigate to destinations and click **Add Destination**.
+![Add destination](assets/create-destination-step-1.png)
+2. Search for google ads, select it, and click **Continue**.
+![Select Google Ads](assets/create-destination-step-2.png)
+3. Log in to Google Ads to authorize the connection. Once authorized, click **Continue**.
+![Login to Google Ads](assets/create-destination-step-3a.png)
+![Continue after login](assets/create-destination-step-3b.png)
+4. Name the destination (ex. Sample Google Ads Destination) and then click **Finish**.
+![Name destination](assets/create-destination-step-4.png)
 
-### Create your audience
+### Create a Parent Model
 
-Next you need to create the audience within Hightouch.
+A parent model must first be defined in order for Hightouch to understand what Snowflake data to query. *The creation of a parent model is a one time setup that can be ignored if already completed.*
 
-1. Go to the **Audiences** tab and click on **Add audience**.
-![Add audience](assets/create_audience_step_1.png)
-2. Select the "customer_sales" object, and click **Continue**. (Screenshot)
-3. Now you will narrow down the rows in the "customer_sales" table to those who have purchased recently.  Click **Add condition** and select **Have a property**.
-![Add condition](assets/create_audience_step_3.png)
-4. TODO: this bullet tells you how to narrow on the latest_sale date. (Screenshot)
-5. Optionally, you can click the **Preview results** button to view the data that will be included in the audience.  This allows you to make sure the audience is as you expect before you finish creating it. (Screenshot)
-6. Click **Continue** to move on to naming your audience. (Screenshot)
-7. Set the name of your audience.  For instance, you could name it "recent-purchasers," and click **Finish**. 
+1. Navigate to Audiences and click **Configure parent model**.
+![Configure parent model](assets/parent-model-step-1.png)
+2. Select your Snowflake data source.
+![Select data source](assets/parent-model-step-2.png)
+3. You will be presented with multiple options for setting up your parent model. For this Quickstart, select the **Select a Table or View option**.
+![Select Table or View](assets/parent-model-step-3.png)
+4. Define your customer table by selecting the table that you’d like to build the model off of - in this case, the Customer Sales Table we created earlier in the Quickstart. Once selected, click **Preview** to ensure the data is available, and then click **Continue**.
+![Select Customer Sales](assets/parent-model-step-4.png)
+5. Finalize the parent model settings by naming the model (Customer Sales), and defining your Primary Key (User_ID). Additionally, select your Content Label Fields which will display when previewing members of this audience (Email and UserId) and then click **Finish**.
+![Finalize parent model](assets/parent-model-step-5.png)
 
-### Create a Sync
+*Note: Hightouch supports a number of entity relationships like Related Models and Event Models to enable more complex targeting, however we are going to just leverage a parent model in this Quickstart. For more information, visit: [https://hightouch.com/docs/audiences/schema](https://hightouch.com/docs/audiences/schema)*.
 
-Now that the audience is created, we need to configure how often it is pushed to Google Ads for use with the Youtube campaign.
+### Create Purchaser Audience
 
-1. Click on the "recent-purchasers" audience we created from the Audiences list. Click on the **Syncs** tab and click **Add a sync**. (Screenshot)
-2. Select the Google Ads destination that we set up previously. (Screenshot)
-3. Map the "email" column in the audience to the destination. (Screenshot)
-4. Under "Would you like Hightouch to automatically hash your PII data?" select "Yes, automatically hash PII for me." Then click **Continue** to proceed to setting the schedule. (Screenshot)
-5. Here you can select the type of schedule for sending data.  It should be set depending on how often the data changes and the candence of your campaign.  For example, we can select "Interval" and select TODO to sync the data daily.
-6. Finally, click **Run** to begin the sync with Google Ads.
+With the parent model defined, users can now leverage Hightouch’s no-code audience builder to create any audience of customers.
+
+1. Navigate to the **Audiences** tab and click on **Add audience**.
+![Add audience](assets/create-audience-step-1.png)
+2. Select the parent model of interest (in this case Customer Sales).
+![Select parent model](assets/create-audience-step-2.png)
+3. Add the segmentation logic to identify those who have purchased within the last two months by clicking **Add condition**, then **Have a property**.
+![Add condition](assets/create-audience-step-3.png)
+4. Click **Select property**, **Latest Sale**.
+![Select property](assets/create-audience-step-4.png)
+5. Set the date criteria to be **after previous 2 months**.
+![After previous 2 months](assets/create-audience-step-5.png)
+6. Click **Preview results** to see the users who will be included in the audience.
+![Preview results](assets/create-audience-step-6.png)
+7. Once previewed, click **Continue**.
+![Continue after preview](assets/create-audience-step-7.png)
+8. Name the audience "Recent Purchasers," and then click **Finish**.
+![Finish audience](assets/create-audience-step-8.png)
+
+### Sync Audience to Google Ads
+
+With the audience now created, we need to configure how often it is pushed to Google Ads for use with the Youtube campaign.
+
+1. Click on the recent-purchasers audience we just created and then click **Add a sync**.
+![Add sync](assets/create-sync-step-1.png)
+2. Select the Google Ads destination that we set up previously.
+![Select Google destination](assets/create-sync-step-2.png)
+3. Select the Google Ads account you would like to sync the audience to.
+4. Select **Customer match user list** as the sync type.
+![Customer match user list](assets/create-sync-step-4.png)
+5. Set your user list type as “Contact_Info”.
+6. Map the email column in the audience to the destination.
+![Map email](assets/create-sync-step-6.png)
+7. Select **Create a new user list**.
+8. Under "Would you like Hightouch to automatically hash your PII data?" select "Yes, automatically hash PII for me." Then click **Continue**.
+9. Select the type of schedule for sending data. It should be set depending on how often the data changes and the cadence of your campaign. For this example, we can select "Interval" and select every 12 hours to sync the data twice daily.
+![Map email](assets/create-sync-step-9.png)
+6. Click **Finish**.
 
 ## Suppressing audience within Youtube campaign
 
@@ -162,9 +213,11 @@ This section will tell you how to exclude the audience from your Youtube campaig
 ## Conclusion
 Duration: 1
 
-Especially in challenging macroeconomic environments, it is important that ad campaigns are targeted to the right people.  In this example, we showed how we could use Snowflake and Hightouch to suppress recent purchasers from an ad campaign running with Youtube.
+Especially in challenging macroeconomic environments, it is important that ad campaigns are targeted to the right people. In this example, we showed how we could use Snowflake and Hightouch to suppress recent purchasers from an ad campaign running with Youtube.
 
 ### What we've covered
-- creating test data in Snowflake
-- how to connect Hightouch to Snowflake
-- how to create an audience in Google Ads from this data
+
+- How to create test data in Snowflake
+- How to connect Hightouch to Snowflake
+- How to create an audience in Hightouch and Sync it to Google Ads
+- How to suppress audiences in Google Ads for Youtube campaigns
