@@ -12,11 +12,11 @@ tags: Getting Started, AdTech
 ## Overview 
 Duration: 1
 
-Hightouch helps marketers activate their customer data from Snowflake to over 125 different applications.  The Data Activation platform, powered by Reverse ETL, provides both SQL and audience builders to help teams across an organization complete what is now being called the "last mile" of the [Modern Data Stack](https://hightouch.com/blog/reverse-etl-bringing-the-modern-data-stack-full-circle).
+Hightouch helps marketers activate their customer data from Snowflake to over 125 different applications.  The [Data Activation](https://hightouch.com/blog/what-is-data-activation) platform, powered by Reverse ETL, provides both a SQL-based UI as well as a no-code [audience builder](https://hightouch.com/platform/audiences)to help teams across an organization complete what is now being called the "last mile" of the [Modern Data Stack](https://hightouch.com/blog/reverse-etl-bringing-the-modern-data-stack-full-circle).
 
 ![Snowflake and Hightouch stack](assets/Snowflake_Template_The_Modern_Data_Stack_e80de39d33.jpg)
 
-Audience targeting strategies have become increasingly important in modern marketing due to the rising cost of advertising and the increasing expectations of consumers. While there are many ways in which organizations can target customers, one of the simplest strategies to begin leveraging to optimize advertising spend is suppression audiences.
+Audience targeting strategies have become increasingly important in modern marketing due to the rising cost of advertising and the increasing expectations of consumers. While there are [many ways](https://hightouch.com/blog/driving-paid-media-roas-through-audience-activation) in which organizations can target customers, one of the simplest strategies to begin leveraging to optimize advertising spend is suppression audiences.
 
 A suppression audience is a group of customers who are excluded from a marketing campaign to ensure that they do not see irrelevant ads. Suppression audiences can be created using various segments, such as current customers, churned customers, or those with low purchasing propensity. The idea behind suppression audiences is simple: you define who you do not want to target with your ads. By excluding certain groups from your campaign, you can focus on delivering relevant marketing to your desired audience.
 There are several reasons a company might want to suppress or exclude existing purchasers from their ad campaign. Firstly, it may be a product, like a subscription, that can only be purchased once. Another reason is that it may simply be a way to use different messaging for different audiences. Existing customers may be excluded in one campaign and exclusively targeted in another. Finally, it may be a product with a long replenishment cycle, so that purchasers are excluded from messaging for a certain amount of time after their purchase.
@@ -183,7 +183,7 @@ A parent model must first be defined in order for Hightouch to understand what S
 
 ![Finalize parent model](assets/parent-model-step-5.png)
 
-*Note: Hightouch supports a number of entity relationships like Related Models and Event Models to enable more complex targeting, however we are going to just leverage a parent model in this Quickstart. For more information, visit: [https://hightouch.com/docs/audiences/schema](https://hightouch.com/docs/audiences/schema)*.
+*Note: Hightouch supports a number of entity relationships like [Related Models](https://hightouch.com/blog/audience-builder-upgrade) and Event Models to enable more complex targeting, however we are going to just leverage a parent model in this Quickstart. For more information, visit: [https://hightouch.com/docs/audiences/schema](https://hightouch.com/docs/audiences/schema)*.
 
 ### Create Purchaser Audience
 
