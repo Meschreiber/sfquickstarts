@@ -16,17 +16,17 @@ Hightouch helps marketers activate their customer data from Snowflake to over 12
 
 ![Snowflake and Hightouch stack](assets/Snowflake_Template_The_Modern_Data_Stack_e80de39d33.jpg)
 
-Audience targeting strategies have become increasingly important in modern marketing due to the rising cost of advertising and the increasing expectations of consumers. While there are [many ways](https://hightouch.com/blog/driving-paid-media-roas-through-audience-activation) in which organizations can target customers, one of the simplest strategies to begin leveraging to optimize advertising spend is suppression audiences.
+Audience targeting strategies have become increasingly important in modern marketing due to the rising cost of advertising and the increasing expectations of consumers. While there are [many ways](https://hightouch.com/blog/driving-paid-media-roas-through-audience-activation) organizations can target customers, one of the simplest strategies to optimize advertising spend is suppression audiences.
 
 A suppression audience is a group of customers who are excluded from a marketing campaign to ensure that they do not see irrelevant ads. Suppression audiences can be created using various segments, such as current customers, churned customers, or those with low purchasing propensity. The idea behind suppression audiences is simple: you define who you do not want to target with your ads. By excluding certain groups from your campaign, you can focus on delivering relevant marketing to your desired audience.
-There are several reasons a company might want to suppress or exclude existing purchasers from their ad campaign. Firstly, it may be a product, like a subscription, that can only be purchased once. Another reason is that it may simply be a way to use different messaging for different audiences. Existing customers may be excluded in one campaign and exclusively targeted in another. Finally, it may be a product with a long replenishment cycle, so that purchasers are excluded from messaging for a certain amount of time after their purchase.
+There are several reasons a company might want to suppress or exclude existing purchasers from their ad campaign. Firstly, it may be a product, like a subscription, that can only be purchased once. Another reason is that you may simply want to use different messaging for different audiences. Existing customers may be excluded in one campaign and exclusively targeted in another. Finally, it may be a product with a long replenishment cycle, so that purchasers are excluded from messaging for a certain amount of time after their purchase.
 
-In this Quickstart, we will cover this last example, a suppression audience use-case where recent purchasers are added as an excluded (suppression) audience segment in a Youtube campaign run through Google Ads. Leveraging existing customer data in Snowflake, we will build a purchaser audience with Hightouch's no-code audience builder and sync the audience of users to Google Ads.
+In this Quickstart, we will cover this last example, a suppression audience use-case where recent purchasers are added as an excluded (suppression) audience segment in a Youtube campaign run through Google Ads. Leveraging existing customer data in Snowflake, we will build a purchaser audience with Hightouch's no-code audience builder and sync an audience of users who recently made a purchase to Google Ads.
 
 ### Prerequisites
 
 - Basic experience with Snowflake and SQL
-- Access to [Hightouch](https://hightouch.com/get-started) with the "audiences" feature enabled. Reach out for a [demo](https://hightouch.com/demo) if needed.
+- Access to [Hightouch](https://hightouch.com/get-started) with the [Audiences](https://hightouch.com/docs/audiences/overview) feature enabled. Reach out for a [demo](https://hightouch.com/demo) if needed.
 
 ### What You’ll Learn
 
@@ -136,17 +136,17 @@ GRANT SELECT ON VIEW PC_HIGHTOUCH_DB.public.customer_sales TO ROLE PC_HIGHTOUCH_
 ## Create audience and configure destination in Hightouch
 Duration: 8
 
-Now that we have our test data, we need to create the audience in Hightouch and push it to Google Ads.  Connecting to Hightouch from Snowflake above created the data source within Hightouch, which will be used below.
+Now that we have our test data, we can create the audience in Hightouch and push it to Google Ads.  Connecting to Hightouch from Snowflake via Partner Connect already created the data source within Hightouch.
 
 ### Creating a Google Ads destination
 
-In order to push data to Google Ads for use with a Youtube campaign, we need to create a destination.
+To push data to Google Ads for use with a Youtube campaign, we need to create a destination.
 
 1. Navigate to destinations and click **Add Destination**.
 
 ![Add destination](assets/create-destination-step-1.png)
 
-2. Search for google ads, select it, and click **Continue**.
+2. Search for Google Ads, select it, and click **Continue**.
 
 ![Select Google Ads](assets/create-destination-step-2.png)
 
@@ -161,7 +161,7 @@ In order to push data to Google Ads for use with a Youtube campaign, we need to 
 
 ### Create a Parent Model
 
-A parent model must first be defined in order for Hightouch to understand what Snowflake data to query. *The creation of a parent model is a one time setup that can be ignored if already completed.*
+A parent model must first be defined for Hightouch to understand what Snowflake data to query. *The creation of a parent model is a one time setup that can be ignored if already completed.*
 
 1. Navigate to Audiences and click **Configure parent model**.
 
@@ -251,7 +251,7 @@ With the audience now created, we need to configure how often it is pushed to Go
 
 6. Click **Finish**.
 
-## Suppressing audience within Youtube campaign
+## Suppressing audience within YouTube campaign
 
 This section will tell you how to exclude the audience from your Youtube campaign using Google Ads.  For more details, see the [Google documentation](https://support.google.com/google-ads/answer/2549058?hl=en).
 
@@ -265,7 +265,7 @@ This section will tell you how to exclude the audience from your Youtube campaig
 ## Conclusion
 Duration: 1
 
-Especially in challenging macroeconomic environments, it is important that ad campaigns are targeted to the right people. In this example, we showed how we could use Snowflake and Hightouch to suppress recent purchasers from an ad campaign running with Youtube.
+Especially in challenging macroeconomic environments, it is important that ad campaigns are targeted to the right people. In this example, we showed how we could use Snowflake and Hightouch to suppress recent purchasers from an ad campaign running with YouTube.
 
 ### What we've covered
 
